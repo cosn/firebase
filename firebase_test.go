@@ -11,19 +11,19 @@ type Name struct {
 }
 
 /*
-Uncomment the two variables below and set them to your own
+Set the two variables below and set them to your own
 Firebase URL and credentials (optional) if you're forking the code
 and want to test your changes.
-
-var testUrl =
-var testAuth =
 */
+
+var testUrl, testAuth string
 
 // TODO: report the issue to #GoLang and remove after clarified
 const bugDelay = 250
 
 func TestValue(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
+	keysInit()
+
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
 
@@ -35,6 +35,7 @@ func TestValue(t *testing.T) {
 }
 
 func TestChild(t *testing.T) {
+	keysInit()
 	time.Sleep(bugDelay * time.Millisecond)
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
@@ -47,6 +48,7 @@ func TestChild(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
+	keysInit()
 	time.Sleep(bugDelay * time.Millisecond)
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
@@ -65,6 +67,7 @@ func TestPush(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
+	keysInit()
 	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
@@ -86,6 +89,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	keysInit()
 	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
@@ -103,6 +107,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestRemovet(t *testing.T) {
+	keysInit()
 	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
@@ -115,5 +120,12 @@ func TestRemovet(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("%v\n", err)
+	}
+}
+
+func keysInit() {
+	if len(testUrl) == 0 {
+		testUrl = keyUrl
+		testAuth = keyAuth
 	}
 }
