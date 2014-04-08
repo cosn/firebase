@@ -19,7 +19,7 @@ and want to test your changes.
 var testUrl, testAuth string
 
 // TODO: report the issue to #GoLang and remove after clarified
-const bugDelay = 250
+const bugDelay = 50
 
 func TestValue(t *testing.T) {
 	keysInit()
