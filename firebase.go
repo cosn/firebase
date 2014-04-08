@@ -61,7 +61,7 @@ func (f *F) Value() interface{} {
 	// if we have not yet performed a look-up, do it so a value is returned
 	if f.value == nil {
 		var v interface{}
-		f = f.Child("", v, nil)
+		f = f.Child("", nil, v)
 	}
 
 	if f == nil {
@@ -73,7 +73,7 @@ func (f *F) Value() interface{} {
 
 // Child returns a populated pointer for a given path.
 // If the path cannot be found, a null pointer is returned.
-func (f *F) Child(path string, v interface{}, params map[string]string) *F {
+func (f *F) Child(path string, params map[string]string, v interface{}) *F {
 	u := f.Url + "/" + path
 
 	res, err := f.api.Call("GET", u, f.Auth, nil, params)
