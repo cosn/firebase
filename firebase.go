@@ -56,7 +56,7 @@ func (f *F) Init(root, auth string, api Api) {
 	f.Auth = auth
 }
 
-// Value returns the value of of the current Url
+// Value returns the value of of the current Url.
 func (f *F) Value() interface{} {
 	// if we have not yet performed a look-up, do it so a value is returned
 	if f.value == nil {
