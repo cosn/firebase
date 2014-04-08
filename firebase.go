@@ -220,6 +220,7 @@ func (c *client) Call(method, path, auth string, body []byte, params map[string]
 		return nil, err
 	}
 
+	req.Close = true
 	log.Printf("Calling %v %q\n", method, path)
 
 	res, err := httpClient.Do(req)

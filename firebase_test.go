@@ -2,7 +2,6 @@ package firebase
 
 import (
 	"testing"
-	"time" // this shouldn't be needed, but without a small delay between calls, the Go HttpClient panics.
 )
 
 type Name struct {
@@ -18,9 +17,6 @@ and want to test your changes.
 
 var testUrl, testAuth string
 
-// TODO: report the issue to #GoLang and remove after clarified
-const bugDelay = 50
-
 func TestValue(t *testing.T) {
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
@@ -33,7 +29,6 @@ func TestValue(t *testing.T) {
 }
 
 func TestChild(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
 
@@ -45,7 +40,6 @@ func TestChild(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
 	client := new(F)
 	client.Init(testUrl, testAuth, nil)
 
@@ -63,14 +57,12 @@ func TestPush(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
 
-	time.Sleep(bugDelay * time.Millisecond)
 	newName := &Name{First: "NewFirst", Last: "NewLast"}
 	r, err := c2.Set("", newName, map[string]string{"print": "silent"})
 
@@ -84,14 +76,12 @@ func TestSet(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
 
-	time.Sleep(bugDelay * time.Millisecond)
 	newName := &Name{Last: "NewLast"}
 	err := c2.Update("", newName, nil)
 
@@ -101,14 +91,12 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestRemovet(t *testing.T) {
-	time.Sleep(bugDelay * time.Millisecond)
 	c1 := new(F)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
 
-	time.Sleep(bugDelay * time.Millisecond)
 	err := c2.Remove("", nil)
 
 	if err != nil {
