@@ -1,4 +1,4 @@
-firebase
+Go Firebase
 ========
 
 ## Summary
