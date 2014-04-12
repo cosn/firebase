@@ -56,4 +56,5 @@ For more details about the Firebase APIs, see the [Firebase official documentati
 
 ### TODO
 
+- Better support for mananging security rules
 - Streaming support
