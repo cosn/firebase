@@ -15,10 +15,10 @@ Firebase URL and credentials (optional) if you're forking the code
 and want to test your changes.
 */
 
-var testUrl, testAuth string
+//var testUrl, testAuth string
 
 func TestValue(t *testing.T) {
-	client := new(F)
+	client := new(Client)
 	client.Init(testUrl, testAuth, nil)
 
 	r := client.Value()
@@ -29,7 +29,7 @@ func TestValue(t *testing.T) {
 }
 
 func TestChild(t *testing.T) {
-	client := new(F)
+	client := new(Client)
 	client.Init(testUrl, testAuth, nil)
 
 	r := client.Child("", nil, nil)
@@ -40,7 +40,7 @@ func TestChild(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
-	client := new(F)
+	client := new(Client)
 	client.Init(testUrl, testAuth, nil)
 
 	name := &Name{First: "FirstName", Last: "LastName"}
@@ -57,7 +57,7 @@ func TestPush(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	c1 := new(F)
+	c1 := new(Client)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
@@ -76,7 +76,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	c1 := new(F)
+	c1 := new(Client)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
@@ -91,7 +91,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestRemovet(t *testing.T) {
-	c1 := new(F)
+	c1 := new(Client)
 	c1.Init(testUrl+"/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}

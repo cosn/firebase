@@ -33,7 +33,7 @@ import (
 
 To use the client, initialize it and make requests similarly to the Firebase docs:
 ```go
-firebase := new(firebase.F)
+firebase := new(firebase.Client)
 firebase.Init("https://<TBD>.firebase.com", "<optional authentication token>", nil)
 
 n := &Name { First: "Jack", Last: "Sparrow" }
@@ -44,9 +44,9 @@ Currently, the following methods are supported:
 ```go
 Child(path)
 Push(value)
-Remove(path)
 Set(path, value)
 Update(path, value)
+Remove(path)
 Value()
 ```
 

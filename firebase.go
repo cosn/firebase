@@ -18,8 +18,8 @@ type Api interface {
 	Call(method, path, auth string, body []byte, params map[string]string) ([]byte, error)
 }
 
-// F is the Firebase client.
-type F struct {
+// Client is the Firebase client.
+type Client struct {
 	// Url is the client's base URL used for all calls.
 	Url string
 
@@ -35,8 +35,8 @@ type F struct {
 	value interface{}
 }
 
-// struct is the internal implementation of the Firebase API client.
-type client struct{}
+// f is the internal implementation of the Firebase API client.
+type f struct{}
 
 // suffix is the Firebase suffix for invoking their API via HTTP
 const suffix = ".json"
@@ -46,37 +46,37 @@ var httpClient = new(http.Client)
 
 // Init initializes the Firebase client with a given root url and optional auth token.
 // The initialization can also pass a mock api for testing purposes.
-func (f *F) Init(root, auth string, api Api) {
+func (c *Client) Init(root, auth string, api Api) {
 	if api == nil {
-		api = new(client)
+		api = new(f)
 	}
 
-	f.api = api
-	f.Url = root
-	f.Auth = auth
+	c.api = api
+	c.Url = root
+	c.Auth = auth
 }
 
 // Value returns the value of of the current Url.
-func (f *F) Value() interface{} {
+func (c *Client) Value() interface{} {
 	// if we have not yet performed a look-up, do it so a value is returned
-	if f.value == nil {
+	if c.value == nil {
 		var v interface{}
-		f = f.Child("", nil, v)
+		c = c.Child("", nil, v)
 	}
 
-	if f == nil {
+	if c == nil {
 		return nil
 	}
 
-	return f.value
+	return c.value
 }
 
 // Child returns a populated pointer for a given path.
 // If the path cannot be found, a null pointer is returned.
-func (f *F) Child(path string, params map[string]string, v interface{}) *F {
-	u := f.Url + "/" + path
+func (c *Client) Child(path string, params map[string]string, v interface{}) *Client {
+	u := c.Url + "/" + path
 
-	res, err := f.api.Call("GET", u, f.Auth, nil, params)
+	res, err := c.api.Call("GET", u, c.Auth, nil, params)
 	if err != nil {
 		return nil
 	}
@@ -87,9 +87,9 @@ func (f *F) Child(path string, params map[string]string, v interface{}) *F {
 		return nil
 	}
 
-	ret := &F{
-		api:   f.api,
-		Auth:  f.Auth,
+	ret := &Client{
+		api:   c.api,
+		Auth:  c.Auth,
 		Url:   u,
 		value: v}
 
@@ -98,14 +98,14 @@ func (f *F) Child(path string, params map[string]string, v interface{}) *F {
 
 // Push creates a new value under the current root url.
 // A populated pointer with that value is also returned.
-func (f *F) Push(value interface{}, params map[string]string) (*F, error) {
+func (c *Client) Push(value interface{}, params map[string]string) (*Client, error) {
 	body, err := json.Marshal(value)
 	if err != nil {
 		log.Printf("%v\n", err)
 		return nil, err
 	}
 
-	res, err := f.api.Call("POST", f.Url, f.Auth, body, params)
+	res, err := c.api.Call("POST", c.Url, c.Auth, body, params)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +118,10 @@ func (f *F) Push(value interface{}, params map[string]string) (*F, error) {
 		return nil, err
 	}
 
-	ret := &F{
-		api:   f.api,
-		Auth:  f.Auth,
-		Url:   f.Url + "/" + r["name"],
+	ret := &Client{
+		api:   c.api,
+		Auth:  c.Auth,
+		Url:   c.Url + "/" + r["name"],
 		value: value}
 
 	return ret, nil
@@ -129,8 +129,8 @@ func (f *F) Push(value interface{}, params map[string]string) (*F, error) {
 
 // Set overwrites the value at the specified path and returns populated pointer
 // for the updated path.
-func (f *F) Set(path string, value interface{}, params map[string]string) (*F, error) {
-	u := f.Url + "/" + path
+func (c *Client) Set(path string, value interface{}, params map[string]string) (*Client, error) {
+	u := c.Url + "/" + path
 
 	body, err := json.Marshal(value)
 	if err != nil {
@@ -138,15 +138,15 @@ func (f *F) Set(path string, value interface{}, params map[string]string) (*F, e
 		return nil, err
 	}
 
-	res, err := f.api.Call("PUT", u, f.Auth, body, params)
+	res, err := c.api.Call("PUT", u, c.Auth, body, params)
 
 	if err != nil {
 		return nil, err
 	}
 
-	ret := &F{
-		api:  f.api,
-		Auth: f.Auth,
+	ret := &Client{
+		api:  c.api,
+		Auth: c.Auth,
 		Url:  u}
 
 	if len(res) > 0 {
@@ -165,33 +165,33 @@ func (f *F) Set(path string, value interface{}, params map[string]string) (*F, e
 }
 
 // Update performs a partial update with the given value at the specified path.
-func (f *F) Update(path string, value interface{}, params map[string]string) error {
+func (c *Client) Update(path string, value interface{}, params map[string]string) error {
 	body, err := json.Marshal(value)
 	if err != nil {
 		log.Printf("%v\n", err)
 		return err
 	}
 
-	_, err = f.api.Call("PATCH", f.Url+"/"+path, f.Auth, body, params)
+	_, err = c.api.Call("PATCH", c.Url+"/"+path, c.Auth, body, params)
 
 	// if we've just updated the root node, clear the value so it gets looked up
 	// again and populated correctly since we just applied a diffgram
 	if len(path) == 0 {
-		f.value = nil
+		c.value = nil
 	}
 
 	return err
 }
 
 // Remove deletes the data at the given path.
-func (f *F) Remove(path string, params map[string]string) error {
-	_, err := f.api.Call("DELETE", f.Url+"/"+path, f.Auth, nil, params)
+func (c *Client) Remove(path string, params map[string]string) error {
+	_, err := c.api.Call("DELETE", c.Url+"/"+path, c.Auth, nil, params)
 
 	return err
 }
 
 // Call invokes the appropriate HTTP method on a given Firebase URL.
-func (c *client) Call(method, path, auth string, body []byte, params map[string]string) ([]byte, error) {
+func (f *f) Call(method, path, auth string, body []byte, params map[string]string) ([]byte, error) {
 	if !strings.HasSuffix(path, "/") {
 		path += "/"
 	}
