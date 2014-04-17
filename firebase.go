@@ -210,7 +210,7 @@ func (c *Client) Rules(params map[string]string) (Rules, error) {
 	return v, nil
 }
 
-// SetRules overrides the existing security rules with the new rules given.
+// SetRules overwrites the existing security rules with the new rules given.
 func (c *Client) SetRules(rules *Rules, params map[string]string) error {
 	body, err := json.Marshal(rules)
 	if err != nil {
