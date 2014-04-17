@@ -48,13 +48,10 @@ Set(path, value)
 Update(path, value)
 Remove(path)
 Value()
+Rules()
+SetRules(rules)
 ```
 
 For more details about this library, see the [GoDoc](http://godoc.org/github.com/cosn/firebase) documentation.
 
 For more details about the Firebase APIs, see the [Firebase official documentation](https://www.firebase.com/docs/).
-
-### TODO
-
-- Better support for mananging security rules
-- Streaming support

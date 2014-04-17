@@ -15,11 +15,11 @@ Firebase URL and credentials (optional) if you're forking the code
 and want to test your changes.
 */
 
-//var testUrl, testAuth string
+var testUrl, testAuth string
 
 func TestValue(t *testing.T) {
 	client := new(Client)
-	client.Init(testUrl, testAuth, nil)
+	client.Init(testUrl+"/tests", testAuth, nil)
 
 	r := client.Value()
 
@@ -30,7 +30,7 @@ func TestValue(t *testing.T) {
 
 func TestChild(t *testing.T) {
 	client := new(Client)
-	client.Init(testUrl, testAuth, nil)
+	client.Init(testUrl+"/tests", testAuth, nil)
 
 	r := client.Child("", nil, nil)
 
@@ -41,7 +41,7 @@ func TestChild(t *testing.T) {
 
 func TestPush(t *testing.T) {
 	client := new(Client)
-	client.Init(testUrl, testAuth, nil)
+	client.Init(testUrl+"/tests", testAuth, nil)
 
 	name := &Name{First: "FirstName", Last: "LastName"}
 
@@ -58,7 +58,7 @@ func TestPush(t *testing.T) {
 
 func TestSet(t *testing.T) {
 	c1 := new(Client)
-	c1.Init(testUrl+"/users", testAuth, nil)
+	c1.Init(testUrl+"/tests/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
@@ -77,7 +77,7 @@ func TestSet(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	c1 := new(Client)
-	c1.Init(testUrl+"/users", testAuth, nil)
+	c1.Init(testUrl+"/tests/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
@@ -92,7 +92,7 @@ func TestUpdate(t *testing.T) {
 
 func TestRemovet(t *testing.T) {
 	c1 := new(Client)
-	c1.Init(testUrl+"/users", testAuth, nil)
+	c1.Init(testUrl+"/tests/users", testAuth, nil)
 
 	name := &Name{First: "First", Last: "last"}
 	c2, _ := c1.Push(name, nil)
@@ -101,5 +101,38 @@ func TestRemovet(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("%v\n", err)
+	}
+}
+
+func TestRules(t *testing.T) {
+	client := new(Client)
+	client.Init(testUrl, testAuth, nil)
+
+	r, err := client.Rules(nil)
+
+	if err != nil {
+		t.Fatalf("Error retrieving rules: %v\n", err)
+	}
+
+	if r == nil {
+		t.Fatalf("No child returned from the server\n")
+	}
+}
+
+func TestSetRules(t *testing.T) {
+	client := new(Client)
+	client.Init(testUrl, testAuth, nil)
+
+	rules := &Rules{
+		"rules": map[string]string{
+			".read":  "auth.username == 'admin'",
+			".write": "auth.username == 'admin'",
+		},
+	}
+
+	err := client.SetRules(rules, nil)
+
+	if err != nil {
+		t.Fatalf("Error retrieving rules: %v\n", err)
 	}
 }

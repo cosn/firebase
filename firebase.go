@@ -35,6 +35,9 @@ type Client struct {
 	value interface{}
 }
 
+// Rules is the structure for security rules.
+type Rules map[string]interface{}
+
 // f is the internal implementation of the Firebase API client.
 type f struct{}
 
@@ -186,6 +189,36 @@ func (c *Client) Update(path string, value interface{}, params map[string]string
 // Remove deletes the data at the given path.
 func (c *Client) Remove(path string, params map[string]string) error {
 	_, err := c.api.Call("DELETE", c.Url+"/"+path, c.Auth, nil, params)
+
+	return err
+}
+
+// Rules returns the security rules for the database.
+func (c *Client) Rules(params map[string]string) (Rules, error) {
+	res, err := c.api.Call("GET", c.Url+"/.settings/rules", c.Auth, nil, params)
+	if err != nil {
+		return nil, err
+	}
+
+	var v Rules
+	err = json.Unmarshal(res, &v)
+	if err != nil {
+		log.Printf("%v\n", err)
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// SetRules overrides the existing security rules with the new rules given.
+func (c *Client) SetRules(rules *Rules, params map[string]string) error {
+	body, err := json.Marshal(rules)
+	if err != nil {
+		log.Printf("%v\n", err)
+		return err
+	}
+
+	_, err = c.api.Call("PUT", c.Url+"/.settings/rules", c.Auth, body, params)
 
 	return err
 }
