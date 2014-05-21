@@ -7,9 +7,16 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
+)
+
+var (
+	connectTimeout   = time.Duration(10 * time.Second) // timeout for http connection
+	readWriteTimeout = time.Duration(10 * time.Second) // timeout for http read/write
 )
 
 // Api is the interface for interacting with Firebase.
@@ -42,7 +49,26 @@ type client struct{}
 const suffix = ".json"
 
 // httpClient is the HTTP client used to make calls to Firebase
-var httpClient = new(http.Client)
+var httpClient = NewTimeoutClient(connectTimeout, readWriteTimeout)
+
+func TimeoutDialer(cTimeout time.Duration, rwTimeout time.Duration) func(net, addr string) (c net.Conn, err error) {
+	return func(netw, addr string) (net.Conn, error) {
+		conn, err := net.DialTimeout(netw, addr, cTimeout)
+		if err != nil {
+			return nil, err
+		}
+		conn.SetDeadline(time.Now().Add(rwTimeout))
+		return conn, nil
+	}
+}
+
+func NewTimeoutClient(connectTimeout time.Duration, readWriteTimeout time.Duration) *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			Dial: TimeoutDialer(connectTimeout, readWriteTimeout),
+		},
+	}
+}
 
 // Init initializes the Firebase client with a given root url and optional auth token.
 // The initialization can also pass a mock api for testing purposes.
