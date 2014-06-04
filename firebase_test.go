@@ -15,7 +15,11 @@ Firebase URL and credentials (optional) if you're forking the code
 and want to test your changes.
 */
 
-var testUrl, testAuth string
+// enter your firebase credentials for testing.
+var (
+	testUrl  string = ""
+	testAuth string = ""
+)
 
 func TestValue(t *testing.T) {
 	client := new(Client)
