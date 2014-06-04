@@ -14,11 +14,6 @@ import (
 	"time"
 )
 
-var (
-	connectTimeout   = time.Duration(10 * time.Second) // timeout for http connection
-	readWriteTimeout = time.Duration(10 * time.Second) // timeout for http read/write
-)
-
 // Api is the interface for interacting with Firebase.
 // Consumers of this package can mock this interface for testing purposes.
 type Api interface {
@@ -51,27 +46,13 @@ type f struct{}
 // suffix is the Firebase suffix for invoking their API via HTTP
 const suffix = ".json"
 
+var (
+	connectTimeout   = time.Duration(10 * time.Second) // timeout for http connection
+	readWriteTimeout = time.Duration(10 * time.Second) // timeout for http read/write
+)
+
 // httpClient is the HTTP client used to make calls to Firebase
-var httpClient = NewTimeoutClient(connectTimeout, readWriteTimeout)
-
-func TimeoutDialer(cTimeout time.Duration, rwTimeout time.Duration) func(net, addr string) (c net.Conn, err error) {
-	return func(netw, addr string) (net.Conn, error) {
-		conn, err := net.DialTimeout(netw, addr, cTimeout)
-		if err != nil {
-			return nil, err
-		}
-		conn.SetDeadline(time.Now().Add(rwTimeout))
-		return conn, nil
-	}
-}
-
-func NewTimeoutClient(connectTimeout time.Duration, readWriteTimeout time.Duration) *http.Client {
-	return &http.Client{
-		Transport: &http.Transport{
-			Dial: TimeoutDialer(connectTimeout, readWriteTimeout),
-		},
-	}
-}
+var httpClient = newTimeoutClient(connectTimeout, readWriteTimeout)
 
 // Init initializes the Firebase client with a given root url and optional auth token.
 // The initialization can also pass a mock api for testing purposes.
@@ -302,4 +283,23 @@ func (f *f) Call(method, path, auth string, body []byte, params map[string]strin
 	}
 
 	return ret, nil
+}
+
+func TimeoutDialer(cTimeout time.Duration, rwTimeout time.Duration) func(net, addr string) (c net.Conn, err error) {
+	return func(netw, addr string) (net.Conn, error) {
+		conn, err := net.DialTimeout(netw, addr, cTimeout)
+		if err != nil {
+			return nil, err
+		}
+		conn.SetDeadline(time.Now().Add(rwTimeout))
+		return conn, nil
+	}
+}
+
+func newTimeoutClient(connectTimeout time.Duration, readWriteTimeout time.Duration) *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			Dial: TimeoutDialer(connectTimeout, readWriteTimeout),
+		},
+	}
 }
